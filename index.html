@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gabriel's Notes App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        .app {
+            width: 420px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px lightgray;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        textarea {
+            width: 90%;
+            height: 90px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid gray;
+            border-radius: 6px;
+            resize: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            margin-top: 12px;
+            background-color: #3498db;
+            color: white;
+        }
+
+        .note {
+            background-color: #fff8c4;
+            margin: 15px auto;
+            padding: 12px;
+            width: 90%;
+            border-radius: 8px;
+            text-align: left;
+            box-sizing: border-box;
+        }
+
+        .note-text {
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 16px;
+        }
+
+        .note-time {
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: gray;
+        }
+
+        .edit-btn {
+            background-color: #f39c12;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app">
+        <h1>Gabriel's Notes App</h1>
+
+        <textarea id="noteInput" placeholder="Type your note here..."></textarea>
+        <br>
+        <button class="add-btn" onclick="addNote()">Save Note</button>
+
+        <div id="notesContainer"></div>
+    </div>
+
+    <script>
+        let notes = [];
+
+        function addNote() {
+            let inputBox = document.getElementById("noteInput");
+            let noteText = inputBox.value.trim();
+
+            if (noteText === "") {
+                alert("Please type a note first.");
+                return;
+            }
+
+            let currentDate = new Date();
+            let dateTime = currentDate.toLocaleString();
+
+            let noteObject = {
+                text: noteText,
+                time: dateTime
+            };
+
+            notes.push(noteObject);
+            saveNotes();
+            displayNotes();
+
+            inputBox.value = "";
+        }
+
+        function displayNotes() {
+            let notesContainer = document.getElementById("notesContainer");
+            notesContainer.innerHTML = "";
+
+            for (let i = 0; i < notes.length; i++) {
+                let noteDiv = document.createElement("div");
+                noteDiv.className = "note";
+
+                let noteParagraph = document.createElement("p");
+                noteParagraph.className = "note-text";
+                noteParagraph.innerText = notes[i].text;
+
+                let timeParagraph = document.createElement("p");
+                timeParagraph.className = "note-time";
+                timeParagraph.innerText = notes[i].time;
+
+                let editButton = document.createElement("button");
+                editButton.className = "edit-btn";
+                editButton.innerText = "Edit";
+
+                editButton.onclick = function() {
+                    editNote(i);
+                };
+
+                let deleteButton = document.createElement("button");
+                deleteButton.className = "delete-btn";
+                deleteButton.innerText = "Remove Note";
+
+                deleteButton.onclick = function() {
+                    deleteNote(i);
+                };
+
+                noteDiv.appendChild(noteParagraph);
+                noteDiv.appendChild(timeParagraph);
+                noteDiv.appendChild(editButton);
+                noteDiv.appendChild(deleteButton);
+
+                notesContainer.appendChild(noteDiv);
+            }
+        }
+
+        function editNote(index) {
+            let updatedText = prompt("Edit your note:", notes[index].text);
+
+            if (updatedText === null) {
+                return;
+            }
+
+            updatedText = updatedText.trim();
+
+            if (updatedText === "") {
+                alert("Note cannot be empty.");
+                return;
+            }
+
+            notes[index].text = updatedText;
+
+            let currentDate = new Date();
+            notes[index].time = "Edited: " + currentDate.toLocaleString();
+
+            saveNotes();
+            displayNotes();
+        }
+
+        function deleteNote(index) {
+            notes.splice(index, 1);
+            saveNotes();
+            displayNotes();
+        }
+
+        function saveNotes() {
+            localStorage.setItem("myNotes", JSON.stringify(notes));
+        }
+
+        function loadNotes() {
+            let savedNotes = localStorage.getItem("myNotes");
+
+            if (savedNotes !== null) {
+                notes = JSON.parse(savedNotes);
+                displayNotes();
+            }
+        }
+
+        window.onload = function() {
+            loadNotes();
+        };
+    </script>
+
+</body>
+</html>
